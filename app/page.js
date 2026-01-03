@@ -20,7 +20,11 @@ import {
   AlertCircle,
   Home as HomeIcon,
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  Menu,
+  X,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ChapterButton from '@/components/chapter-button';
@@ -43,6 +47,8 @@ export default function NovelReaderPage() {
   const [chapterContent, setChapterContent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showSynopsis, setShowSynopsis] = useState(false);
 
   const handleSearch = async (searchQuery) => {
     setError('');
@@ -124,113 +130,137 @@ export default function NovelReaderPage() {
     setSelectedNovel(null);
     setNovelDetail(null);
     setChapterContent(null);
+    setShowMobileMenu(false);
   };
 
   const handleBackToChapters = () => {
     setChapterContent(null);
+    setShowMobileMenu(false);
   };
 
   return (
-    <div className="min-h-screen dark:bg-gray-950">
-      {/* Hapus background pattern putih */}
-      
-      {/* Header dengan gradient background */}
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-gray-900 to-black backdrop-blur-md border-b dark:border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* Header Mobile-Friendly */}
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-gray-900 to-black backdrop-blur-md border-b border-gray-800">
+        <div className="px-4 py-3">
+          {/* Top Bar */}
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white rounded-lg">
-                <BookOpen className="h-6 w-6 text-black" />
+                <BookOpen className="h-5 w-5 text-black" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold tracking-tight text-white">
-                  SakuraNovel
-                </h1>
+                <h1 className="text-lg font-semibold">SakuraNovel</h1>
                 <p className="text-xs text-gray-300">Reader</p>
               </div>
             </div>
             
-            {/* Navigation Buttons */}
-            <div className="flex gap-2">
-              {chapterContent && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBackToChapters}
-                  className="gap-1 h-9 text-gray-300 hover:text-white hover:bg-gray-800 border-gray-700"
+            {/* Mobile Menu Button */}
+            <div className="flex items-center gap-2">
+              {(selectedNovel || chapterContent) && (
+                <button
+                  onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700"
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Kembali</span>
-                </Button>
-              )}
-              
-              {selectedNovel && !chapterContent && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBackToSearch}
-                  className="gap-1 h-9 text-gray-300 hover:text-white hover:bg-gray-800 border-gray-700"
-                >
-                  <HomeIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Pencarian</span>
-                </Button>
+                  {showMobileMenu ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <Menu className="h-5 w-5" />
+                  )}
+                </button>
               )}
             </div>
           </div>
           
           {/* Search Bar */}
-          <div className="pb-4">
+          <div className="mb-2">
             <SearchBar onSearch={handleSearch} isLoading={loading} />
           </div>
+          
+          {/* Mobile Navigation Menu */}
+          {showMobileMenu && (
+            <div className="animate-in slide-in-from-top-2 duration-200 mb-3">
+              <div className="flex flex-col gap-2 p-3 rounded-lg bg-gray-900 border border-gray-800">
+                {chapterContent ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      onClick={handleBackToChapters}
+                      className="w-full justify-start text-sm"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Kembali ke Daftar Chapter
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleBackToSearch}
+                      className="w-full justify-start text-sm"
+                    >
+                      <HomeIcon className="h-4 w-4 mr-2" />
+                      Kembali ke Pencarian
+                    </Button>
+                  </>
+                ) : selectedNovel ? (
+                  <Button
+                    variant="ghost"
+                    onClick={handleBackToSearch}
+                    className="w-full justify-start text-sm"
+                  >
+                    <HomeIcon className="h-4 w-4 mr-2" />
+                    Kembali ke Pencarian
+                  </Button>
+                ) : null}
+              </div>
+            </div>
+          )}
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <main className="px-4 py-4">
         {/* Error Message */}
         {error && (
-          <div className="mb-6">
-            <Alert variant="destructive" className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/50">
+          <div className="mb-4">
+            <Alert variant="destructive" className="border-red-900 bg-red-950/50">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription className="text-red-800 dark:text-red-300">{error}</AlertDescription>
+              <AlertDescription className="text-red-300">{error}</AlertDescription>
             </Alert>
           </div>
         )}
 
         {/* Loading State */}
         {loading && !error && (
-          <div className="flex flex-col items-center justify-center py-20">
+          <div className="flex flex-col items-center justify-center py-16">
             <div className="relative">
-              <div className="h-16 w-16 rounded-full border-4 border-gray-200 dark:border-gray-800" />
-              <div className="absolute inset-0 h-16 w-16 rounded-full border-4 border-transparent border-t-gray-900 dark:border-t-gray-100 animate-spin" />
+              <div className="h-14 w-14 rounded-full border-4 border-gray-800" />
+              <div className="absolute inset-0 h-14 w-14 rounded-full border-4 border-transparent border-t-white animate-spin" />
             </div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Memuat...</p>
+            <p className="mt-4 text-gray-400">Memuat...</p>
           </div>
         )}
 
         {/* Search Results */}
         {!loading && !selectedNovel && novels.length > 0 && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-                  Hasil Pencarian
-                </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h2 className="text-xl font-semibold">Hasil Pencarian</h2>
+                <p className="text-sm text-gray-400 mt-1">
                   Untuk: "{query}"
                 </p>
               </div>
-              <Badge variant="outline" className="text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800">
+              <Badge variant="outline" className="text-gray-400 border-gray-700">
                 {novels.length} ditemukan
               </Badge>
             </div>
             
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-3">
               {novels.map((novel, index) => (
-                <div key={index} className="transform transition-transform duration-200 hover:-translate-y-1">
+                <div key={index} className="active:scale-[0.98] transition-transform">
                   <NovelCard
                     novel={novel}
                     onClick={handleNovelSelect}
                     isSelected={selectedNovel?.url === novel.url}
+                    compact={true}
                   />
                 </div>
               ))}
@@ -238,177 +268,180 @@ export default function NovelReaderPage() {
           </div>
         )}
 
-        {/* Novel Detail View */}
+        {/* Novel Detail View - Mobile Optimized */}
         {!loading && novelDetail && !chapterContent && (
-          <div className="space-y-8">
-            {/* Back button and title */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBackToSearch}
-                className="h-9 w-9 p-0 rounded-full border-gray-700"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white truncate">
+          <div className="space-y-6">
+            {/* Novel Header */}
+            <div className="space-y-4">
+              {/* Cover Image with Back Button */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleBackToSearch}
+                  className="absolute top-2 left-2 z-10 h-8 w-8 bg-black/50 backdrop-blur-sm hover:bg-black/70"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="aspect-[3/4] w-full max-w-[200px] mx-auto rounded-xl overflow-hidden shadow-lg">
+                  <img
+                    src={novelDetail.cover || '/placeholder-novel.jpg'}
+                    alt={novelDetail.title}
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.target.src = '/placeholder-novel.jpg';
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Title and Info */}
+              <div className="text-center space-y-2">
+                <h1 className="text-xl font-bold leading-tight px-2">
                   {novelDetail.title}
                 </h1>
                 {novelDetail.alternativeTitle && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                  <p className="text-sm text-gray-400 px-2">
                     {novelDetail.alternativeTitle}
                   </p>
                 )}
+                <div className="flex flex-wrap justify-center gap-2">
+                  <Badge className="bg-gray-800">
+                    {novelDetail.type}
+                  </Badge>
+                  <Badge variant="outline" className="border-yellow-500 text-yellow-500">
+                    <Star className="h-3 w-3 mr-1" />
+                    {novelDetail.rating}
+                  </Badge>
+                  <Badge variant="outline" className="border-green-500 text-green-500">
+                    {novelDetail.status}
+                  </Badge>
+                </div>
               </div>
-              <Badge variant="secondary" className="bg-gray-800 text-gray-100">
-                {novelDetail.type}
-              </Badge>
             </div>
 
-            {/* Main content grid */}
-            <div className="grid gap-6 lg:grid-cols-3">
-              {/* Left column - Cover and basic info */}
-              <div className="lg:col-span-1 space-y-6">
-                {/* Cover image */}
-                <Card className="overflow-hidden border-gray-200 dark:border-gray-800 bg-gray-900">
-                  <div className="aspect-[2/3] relative">
-                    <img
-                      src={novelDetail.cover || '/placeholder-novel.jpg'}
-                      alt={novelDetail.title}
-                      className="object-cover w-full h-full"
-                      onError={(e) => {
-                        e.target.src = '/placeholder-novel.jpg';
-                      }}
-                    />
-                  </div>
-                </Card>
-
-                {/* Quick info */}
-                <Card className="border-gray-700 bg-gray-900">
-                  <CardContent className="p-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4 text-yellow-500" />
-                          <span className="text-sm font-medium text-white">Rating</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{novelDetail.rating}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm font-medium text-white">Status</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{novelDetail.status}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm font-medium text-white">Author</span>
-                        </div>
-                        <span className="text-sm text-gray-300">{novelDetail.author}</span>
-                      </div>
+            {/* Quick Info Grid */}
+            <Card className="bg-gray-900 border-gray-800">
+              <CardContent className="p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <User className="h-4 w-4" />
+                      <span>Author</span>
                     </div>
-                    
-                    {/* Genres */}
-                    {novelDetail.genres && novelDetail.genres.length > 0 && (
-                      <div className="mt-6 pt-6 border-t border-gray-800">
-                        <h3 className="text-sm font-medium text-white mb-3 flex items-center gap-2">
-                          <Tag className="h-3 w-3" />
-                          Genres
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {novelDetail.genres.slice(0, 3).map((genre, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="outline"
-                              className="text-xs bg-gray-800 text-gray-300 border-gray-700"
-                            >
-                              {genre}
-                            </Badge>
-                          ))}
-                          {novelDetail.genres.length > 3 && (
-                            <Badge variant="outline" className="text-xs bg-gray-800 text-gray-300 border-gray-700">
-                              +{novelDetail.genres.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                    <p className="font-medium">{novelDetail.author}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Calendar className="h-4 w-4" />
+                      <span>Status</span>
+                    </div>
+                    <p className="font-medium">{novelDetail.status}</p>
+                  </div>
+                </div>
 
-              {/* Right column - Synopsis and chapters */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Synopsis */}
-                <Card className="border-gray-700 bg-gray-900">
-                  <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold text-white mb-4">Sinopsis</h2>
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      {novelDetail.synopsis ? (
-                        <div className="text-gray-300 space-y-4">
-                          {novelDetail.synopsis.split('\n').map((paragraph, index) => (
-                            paragraph.trim() && (
-                              <p key={index} className="leading-relaxed">
-                                {paragraph}
-                              </p>
-                            )
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-400 italic">Sinopsis tidak tersedia.</p>
+                {/* Genres */}
+                {novelDetail.genres && novelDetail.genres.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-gray-800">
+                    <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
+                      <Tag className="h-3 w-3" />
+                      Genres
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {novelDetail.genres.slice(0, 4).map((genre, index) => (
+                        <Badge 
+                          key={index} 
+                          variant="outline"
+                          className="text-xs bg-gray-800 text-gray-300 border-gray-700"
+                        >
+                          {genre}
+                        </Badge>
+                      ))}
+                      {novelDetail.genres.length > 4 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{novelDetail.genres.length - 4}
+                        </Badge>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-                {/* Chapters list */}
-                <Card className="border-gray-700 bg-gray-900">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-lg font-semibold text-white">Daftar Chapter</h2>
-                      <Badge variant="outline" className="text-gray-300 border-gray-700 bg-gray-800">
-                        {novelDetail.chapters?.length || 0} Chapter
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                      {novelDetail.chapters?.map((chapter, index) => (
-                        <ChapterButton
-                          key={index}
-                          chapter={chapter}
-                          onClick={handleChapterSelect}
-                          isReading={false}
-                        />
+            {/* Synopsis - Collapsible on Mobile */}
+            <Card className="bg-gray-900 border-gray-800">
+              <button
+                onClick={() => setShowSynopsis(!showSynopsis)}
+                className="w-full p-4 flex items-center justify-between"
+              >
+                <h2 className="text-lg font-semibold">Sinopsis</h2>
+                {showSynopsis ? (
+                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                )}
+              </button>
+              
+              {showSynopsis && (
+                <CardContent className="pt-0 px-4 pb-4 border-t border-gray-800">
+                  {novelDetail.synopsis ? (
+                    <div className="text-gray-300 space-y-3 text-sm leading-relaxed">
+                      {novelDetail.synopsis.split('\n').map((paragraph, index) => (
+                        paragraph.trim() && (
+                          <p key={index}>
+                            {paragraph}
+                          </p>
+                        )
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  ) : (
+                    <p className="text-gray-400 italic">Sinopsis tidak tersedia.</p>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+
+            {/* Chapters List */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Daftar Chapter</h2>
+                <Badge variant="outline" className="text-gray-400 border-gray-700">
+                  {novelDetail.chapters?.length || 0} Chapter
+                </Badge>
+              </div>
+              
+              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                {novelDetail.chapters?.map((chapter, index) => (
+                  <ChapterButton
+                    key={index}
+                    chapter={chapter}
+                    onClick={handleChapterSelect}
+                    isReading={false}
+                    compact={true}
+                  />
+                ))}
               </div>
             </div>
           </div>
         )}
 
-        {/* Chapter Reading View */}
+        {/* Chapter Reading View - Mobile Optimized */}
         {!loading && chapterContent && (
-          <div className="space-y-8">
-            {/* Chapter header */}
+          <div className="space-y-6">
+            {/* Chapter Header */}
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
+              {/* Back Button and Title */}
+              <div className="flex items-center gap-3">
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
+                  size="icon"
                   onClick={handleBackToChapters}
-                  className="h-9 w-9 p-0 rounded-full border-gray-700"
+                  className="h-10 w-10 shrink-0 bg-gray-900 hover:bg-gray-800"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-xl font-semibold tracking-tight text-white truncate">
+                <div className="min-w-0 flex-1">
+                  <h1 className="text-lg font-semibold truncate">
                     {selectedNovel?.title}
                   </h1>
                   <p className="text-sm text-gray-400 truncate">
@@ -416,183 +449,167 @@ export default function NovelReaderPage() {
                   </p>
                 </div>
               </div>
-              
-              {/* Chapter navigation */}
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => handleNavigate(chapterContent.navigation.previousChapter)}
-                  disabled={!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)}
-                  className={cn(
-                    "gap-2 border-gray-700 text-gray-300 hover:text-white hover:border-gray-600",
-                    (!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)) && "opacity-50"
-                  )}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Sebelumnya
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={() => handleNavigate(chapterContent.navigation.nextChapter)}
-                  disabled={!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)}
-                  className={cn(
-                    "gap-2 border-gray-700 text-gray-300 hover:text-white hover:border-gray-600",
-                    (!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)) && "opacity-50"
-                  )}
-                >
-                  Selanjutnya
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+
+              {/* Chapter Navigation - Sticky Bottom */}
+              <div className="sticky bottom-4 z-40">
+                <div className="flex items-center justify-center gap-3 px-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleNavigate(chapterContent.navigation.previousChapter)}
+                    disabled={!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)}
+                    className={cn(
+                      "flex-1 max-w-[140px] border-gray-700 text-gray-300",
+                      (!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)) && "opacity-50"
+                    )}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Prev
+                  </Button>
+                  
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleBackToChapters}
+                    className="flex-1 max-w-[140px] bg-white text-black hover:bg-gray-200"
+                  >
+                    Daftar
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleNavigate(chapterContent.navigation.nextChapter)}
+                    disabled={!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)}
+                    className={cn(
+                      "flex-1 max-w-[140px] border-gray-700 text-gray-300",
+                      (!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)) && "opacity-50"
+                    )}
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Chapter content */}
-            <Card className="border-gray-700 bg-gray-900">
-              <CardContent className="p-6">
-                <div className="prose prose-gray max-w-none dark:prose-invert">
-                  {chapterContent.images && chapterContent.images.length > 0 ? (
-                    <div className="space-y-6">
-                      {chapterContent.images.map((img, index) => (
-                        <div key={index} className="flex justify-center">
-                          <div className="relative max-w-3xl">
-                            <img
-                              src={img}
-                              alt={`Page ${index + 1}`}
-                              className="rounded-lg shadow-lg"
-                              loading="lazy"
-                              onError={(e) => {
-                                e.target.src = '/placeholder-image.jpg';
-                              }}
-                            />
-                            <div className="absolute bottom-4 right-4 bg-black/80 text-white px-3 py-1 rounded-full text-xs">
-                              {index + 1}
-                            </div>
-                          </div>
+            {/* Chapter Content */}
+            <div className="space-y-6 pb-20">
+              {chapterContent.images && chapterContent.images.length > 0 ? (
+                <div className="space-y-4">
+                  {chapterContent.images.map((img, index) => (
+                    <div key={index} className="flex justify-center">
+                      <div className="relative w-full">
+                        <img
+                          src={img}
+                          alt={`Page ${index + 1}`}
+                          className="w-full h-auto rounded-lg"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.src = '/placeholder-image.jpg';
+                          }}
+                        />
+                        <div className="absolute bottom-3 right-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
+                          {index + 1}
                         </div>
-                      ))}
+                      </div>
                     </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {chapterContent.content ? (
+                    chapterContent.content.split('\n\n').map((paragraph, index) => (
+                      <p key={index} className="text-gray-300 leading-relaxed text-base">
+                        {paragraph}
+                      </p>
+                    ))
                   ) : (
-                    <div className="space-y-6">
-                      {chapterContent.content ? (
-                        chapterContent.content.split('\n\n').map((paragraph, index) => (
-                          <p key={index} className="text-gray-300 leading-relaxed">
-                            {paragraph}
-                          </p>
-                        ))
-                      ) : (
-                        <div className="text-center py-12">
-                          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-400">Konten chapter tidak tersedia.</p>
-                        </div>
-                      )}
+                    <div className="text-center py-12">
+                      <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-400">Konten chapter tidak tersedia.</p>
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
-            
-            {/* Bottom navigation */}
-            <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                onClick={() => handleNavigate(chapterContent.navigation.previousChapter)}
-                disabled={!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)}
-                className={cn(
-                  "gap-2 border-gray-700 text-gray-300 hover:text-white hover:border-gray-600",
-                  (!chapterContent.navigation.previousChapter || !isValidUrl(chapterContent.navigation.previousChapter)) && "opacity-50"
-                )}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Chapter Sebelumnya
-              </Button>
-              
-              <div className="flex items-center gap-2">
+              )}
+            </div>
+
+            {/* Bottom Navigation - Fixed */}
+            <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-transparent pb-4 pt-8 px-4">
+              <div className="flex items-center justify-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={handleBackToChapters}
-                  className="border-gray-700 text-gray-300 hover:text-white hover:border-gray-600"
-                >
-                  Daftar Chapter
-                </Button>
-                
-                <Button
-                  variant="default"
                   onClick={() => handleNavigate(chapterContent.navigation.tableOfContents)}
                   disabled={!novelDetail}
-                  className="bg-white text-black hover:bg-gray-200"
+                  className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700"
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
                   Daftar Isi
                 </Button>
+                
+                <Button
+                  variant="default"
+                  onClick={() => handleNavigate(chapterContent.navigation.nextChapter)}
+                  disabled={!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)}
+                  className={cn(
+                    "flex-1 bg-white text-black hover:bg-gray-200",
+                    (!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)) && "opacity-50"
+                  )}
+                >
+                  Next Chapter
+                </Button>
               </div>
-              
-              <Button
-                variant="outline"
-                onClick={() => handleNavigate(chapterContent.navigation.nextChapter)}
-                disabled={!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)}
-                className={cn(
-                  "gap-2 border-gray-700 text-gray-300 hover:text-white hover:border-gray-600",
-                  (!chapterContent.navigation.nextChapter || !isValidUrl(chapterContent.navigation.nextChapter)) && "opacity-50"
-                )}
-              >
-                Chapter Selanjutnya
-                <ChevronRight className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Empty State - Mobile Optimized */}
         {!loading && !error && novels.length === 0 && query === '' && !selectedNovel && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="relative mb-8">
-              <div className="absolute inset-0 bg-gradient-to-r from-gray-800 to-gray-900 blur-3xl opacity-50" />
-              <div className="relative">
-                <div className="h-32 w-32 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-                  <BookOpen className="h-16 w-16 text-gray-600" />
-                </div>
-                <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-white flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-black" />
-                </div>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="relative mb-6">
+              <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-lg">
+                <BookOpen className="h-12 w-12 text-gray-600" />
+              </div>
+              <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-white flex items-center justify-center shadow-md">
+                <Sparkles className="h-4 w-4 text-black" />
               </div>
             </div>
             
-            <div className="max-w-md mx-auto space-y-4">
-              <h2 className="text-2xl font-semibold tracking-tight text-white">
+            <div className="max-w-sm mx-auto space-y-4 px-2">
+              <h2 className="text-xl font-bold">
                 Selamat datang di SakuraNovel
               </h2>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm">
                 Cari novel favoritmu dengan mengetikkan judul atau kata kunci di kolom pencarian di atas
               </p>
               
-              <div className="grid gap-4 pt-4">
-                <div className="flex items-center gap-3 p-4 rounded-lg border border-gray-700 bg-gray-800">
-                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium">
+              <div className="grid gap-3 pt-4">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-900 border border-gray-800">
+                  <div className="h-7 w-7 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium shrink-0">
                     1
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Cari novel</p>
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Cari novel</p>
                     <p className="text-xs text-gray-400">Masukkan judul di kolom pencarian</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 p-4 rounded-lg border border-gray-700 bg-gray-800">
-                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-900 border border-gray-800">
+                  <div className="h-7 w-7 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium shrink-0">
                     2
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Pilih novel</p>
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Pilih novel</p>
                     <p className="text-xs text-gray-400">Klik card novel untuk melihat detail</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 p-4 rounded-lg border border-gray-700 bg-gray-800">
-                  <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-900 border border-gray-800">
+                  <div className="h-7 w-7 rounded-full bg-gray-800 flex items-center justify-center text-sm font-medium shrink-0">
                     3
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-white">Baca chapter</p>
+                  <div className="text-left">
+                    <p className="text-sm font-medium">Baca chapter</p>
                     <p className="text-xs text-gray-400">Pilih chapter dan mulai membaca</p>
                   </div>
                 </div>
@@ -601,21 +618,21 @@ export default function NovelReaderPage() {
           </div>
         )}
 
-        {/* No Results State */}
+        {/* No Results State - Mobile Optimized */}
         {!loading && !error && novels.length === 0 && query !== '' && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="h-20 w-20 rounded-full bg-gray-800 flex items-center justify-center mb-6">
-              <AlertCircle className="h-10 w-10 text-gray-600" />
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+            <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center mb-4">
+              <AlertCircle className="h-8 w-8 text-gray-600" />
             </div>
-            <h2 className="text-xl font-semibold tracking-tight text-white mb-2">
+            <h2 className="text-lg font-semibold mb-2">
               Tidak ada hasil ditemukan
             </h2>
-            <p className="text-gray-400 mb-6 max-w-sm">
+            <p className="text-gray-400 mb-6 text-sm">
               Tidak ada novel yang cocok dengan pencarian: "{query}"
             </p>
             <Button
               onClick={() => handleSearch(query)}
-              className="bg-white text-black hover:bg-gray-200"
+              className="w-full max-w-[200px] bg-white text-black hover:bg-gray-200"
             >
               Coba lagi
             </Button>
@@ -623,23 +640,21 @@ export default function NovelReaderPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="mt-auto border-t border-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded bg-white flex items-center justify-center">
-                <BookOpen className="h-4 w-4 text-black" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-white">SakuraNovel Reader</p>
-                <p className="text-xs text-gray-400">Baca novel gratis</p>
-              </div>
+      {/* Footer - Mobile Optimized */}
+      <footer className="mt-8 border-t border-gray-800 px-4 py-6">
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded bg-white flex items-center justify-center">
+              <BookOpen className="h-5 w-5 text-black" />
             </div>
-            <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} • Dibuat dengan Next.js
-            </p>
+            <div>
+              <p className="text-sm font-medium">SakuraNovel Reader</p>
+              <p className="text-xs text-gray-400">Baca novel gratis</p>
+            </div>
           </div>
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} • Dibuat dengan Next.js
+          </p>
         </div>
       </footer>
     </div>
