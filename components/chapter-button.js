@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { FileText, Calendar, ArrowRight, Clock, ExternalLink, Sparkles, Lock, BookOpen } from 'lucide-react';
+import { FileText, Calendar, ArrowRight, Clock, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -53,188 +53,146 @@ export default function ChapterButton({ chapter, onClick, isReading }) {
     }
   };
 
-  // Cek apakah chapter baru (dibuat dalam 3 hari terakhir)
-  const isNewChapter = () => {
-    if (!chapter.releaseDate) return false;
-    const releaseDate = new Date(chapter.releaseDate);
-    const now = new Date();
-    const diffDays = Math.floor((now - releaseDate) / (1000 * 60 * 60 * 24));
-    return diffDays <= 3;
-  };
-
-  // Cek apakah chapter premium/locked
-  const isLocked = () => {
-    return chapter.isLocked || chapter.title?.toLowerCase().includes('premium') || chapter.title?.toLowerCase().includes('locked');
-  };
-
   return (
     <div className="relative group">
-      {/* Next.js glassmorphism effect */}
+      {/* Next.js style container dengan spacing dan shadow */}
       <div className={cn(
-        "absolute inset-0 rounded-xl transition-all duration-500",
-        "bg-gradient-to-br from-white/80 to-white/40 dark:from-gray-900/60 dark:to-gray-800/40",
-        "backdrop-blur-sm backdrop-saturate-150",
-        "border border-white/40 dark:border-gray-700/40",
-        "shadow-[0_1px_3px_0_rgba(0,0,0,0.03),0_1px_2px_-1px_rgba(0,0,0,0.03)]",
-        "before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full group-hover:before:translate-x-full before:transition-transform before:duration-1000",
-        "after:absolute after:inset-0 after:rounded-xl after:border after:border-white/60 dark:after:border-gray-600/30",
-        isHovered && !isReading && "shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08)]",
-        isReading && "shadow-[0_2px_12px_-1px_rgba(59,130,246,0.15)]"
+        "absolute inset-0 rounded-lg transition-all duration-300",
+        "bg-gradient-to-br from-gray-50/50 to-white/50 dark:from-gray-900/30 dark:to-gray-800/30",
+        "border border-gray-200/50 dark:border-gray-700/50",
+        "shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]",
+        isHovered && !isReading && "shadow-[0_4px_12px_0_rgba(0,0,0,0.08)]",
+        isReading && "shadow-[0_2px_8px_0_rgba(37,99,235,0.15)]"
       )} />
       
-      {/* Gradient border effect */}
-      <div className={cn(
-        "absolute -inset-[1px] rounded-[13px] bg-gradient-to-br transition-all duration-500 opacity-0 group-hover:opacity-100",
-        isReading 
-          ? "from-blue-500/20 via-blue-600/20 to-blue-500/20" 
-          : "from-gray-200/50 via-gray-300/30 to-gray-200/50 dark:from-gray-700/30 dark:via-gray-600/20 dark:to-gray-700/30"
-      )} />
-
-      {/* Main button */}
+      {/* Main button dengan spacing */}
       <Button
-        variant="ghost"
+        variant={isReading ? "default" : "outline"}
         className={cn(
-          "relative w-full justify-start text-left p-6 transition-all duration-500",
-          "rounded-xl border backdrop-blur-sm",
+          "relative w-full justify-start text-left p-5 transition-all duration-300",
+          "rounded-lg border hover:shadow-sm",
           "transform transition-transform duration-300",
           isClicked && "scale-[0.98]",
-          isHovered && !isReading && "translate-y-[-2px]",
-          isLocked() && "cursor-not-allowed opacity-80",
+          isHovered && !isReading && "translate-x-0.5",
           isReading 
-            ? "bg-gradient-to-br from-blue-600/10 via-blue-600/5 to-blue-600/10 hover:from-blue-600/15 hover:via-blue-600/10 hover:to-blue-600/15 border-blue-200/50 dark:border-blue-900/30" 
-            : "bg-white/60 hover:bg-white/80 border-white/60 hover:border-gray-300/50 dark:bg-gray-900/40 dark:border-gray-800/40 dark:hover:bg-gray-900/60 dark:hover:border-gray-700/50"
+            ? "bg-blue-600 hover:bg-blue-700 text-white border-blue-600 shadow-sm" 
+            : "bg-white/80 hover:bg-white border-gray-200 hover:border-blue-300 dark:bg-gray-900/80 dark:border-gray-700 dark:hover:border-blue-600 dark:hover:bg-gray-800"
         )}
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        disabled={isLocked()}
       >
-        {/* Reading progress indicator */}
+        {/* Progress indicator untuk chapter yang sedang dibaca - Next.js style */}
         {isReading && (
-          <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-blue-500 via-blue-400 to-blue-500 rounded-l-xl" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-400 rounded-l-lg" />
         )}
+        
+        {/* Next.js style subtle glow effect */}
+        <div className={cn(
+          "absolute inset-0 rounded-lg transition-opacity duration-300 pointer-events-none",
+          isReading 
+            ? "bg-gradient-to-r from-blue-500/5 via-blue-600/5 to-blue-500/5" 
+            : "bg-gradient-to-r from-blue-500/0 via-blue-400/3 to-blue-500/0",
+          isHovered && !isReading && "opacity-100",
+          !isHovered && "opacity-0"
+        )} />
 
-        {/* New chapter glow */}
-        {isNewChapter() && !isReading && (
-          <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_2px_rgba(34,197,94,0.3)]" />
-        )}
-
-        {/* Content container */}
-        <div className="relative flex items-start w-full z-10 space-x-5">
-          {/* Icon container dengan glow effect */}
+        {/* Content container dengan spacing ala Next.js */}
+        <div className="relative flex items-start w-full z-10 space-x-4">
+          {/* Icon container dengan Next.js style card */}
           <div className={cn(
-            "relative flex-shrink-0 p-3 rounded-xl transition-all duration-500",
-            "group-hover:scale-105 group-hover:shadow-lg",
-            "border border-white/80 dark:border-gray-800/80",
-            "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.05)]",
+            "relative flex-shrink-0 p-2.5 rounded-md transition-all duration-300",
+            "group-hover:scale-105 shadow-sm",
+            "border border-gray-100 dark:border-gray-800",
             isReading 
-              ? "bg-gradient-to-br from-blue-100/40 to-blue-50/40 backdrop-blur-sm" 
-              : "bg-gradient-to-br from-white to-gray-50 text-blue-600 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.04)] dark:from-gray-800 dark:to-gray-900 dark:text-blue-400"
+              ? "bg-white/20 backdrop-blur-sm" 
+              : "bg-gradient-to-br from-blue-50 to-gray-50 text-blue-600 dark:from-blue-900/30 dark:to-gray-900/30 dark:text-blue-400"
           )}>
-            {isLocked() ? (
-              <Lock className="h-5 w-5" />
-            ) : (
-              <FileText className="h-5 w-5" />
-            )}
+            <FileText className="h-5 w-5" />
             
-            {/* Chapter number badge */}
+            {/* Chapter number indicator - Next.js badge style */}
             {chapter.title && chapter.title.match(/\d+/)?.[0] && (
               <div className={cn(
-                "absolute -top-2 -right-2 h-7 w-7 rounded-full text-xs font-bold flex items-center justify-center",
-                "border-2 border-white dark:border-gray-900",
-                "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.1)]",
-                "bg-gradient-to-br",
+                "absolute -top-2 -right-2 h-6 w-6 rounded-full text-xs font-bold flex items-center justify-center",
+                "border border-white dark:border-gray-900",
+                "shadow-[0_1px_3px_0_rgba(0,0,0,0.1)]",
                 isReading 
-                  ? "from-white to-gray-100 text-blue-600" 
-                  : isLocked()
-                    ? "from-gray-200 to-gray-300 text-gray-600 dark:from-gray-700 dark:to-gray-800 dark:text-gray-400"
-                    : "from-blue-600 to-blue-500 text-white"
+                  ? "bg-white text-blue-600" 
+                  : "bg-blue-600 text-white dark:bg-blue-500"
               )}>
                 {chapter.title.match(/\d+/)?.[0]}
               </div>
             )}
           </div>
 
-          {/* Text content */}
-          <div className="flex-1 min-w-0 space-y-3">
+          {/* Text content dengan spacing yang pas */}
+          <div className="flex-1 min-w-0 space-y-2">
             {/* Title section */}
-            <div className="space-y-2">
-              <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className={cn(
-                      "font-semibold text-base leading-snug truncate",
-                      isReading ? "text-blue-700 dark:text-blue-300" : "text-gray-900 dark:text-gray-100"
-                    )}>
-                      {formatChapterTitle(chapter.title)}
-                    </h3>
+                  <h3 className={cn(
+                    "font-semibold text-sm leading-tight truncate",
+                    isReading ? "text-white" : "text-gray-900 dark:text-gray-100"
+                  )}>
+                    {formatChapterTitle(chapter.title)}
+                  </h3>
+                </div>
+                
+                {/* Action arrow dengan spacing */}
+                <div className="flex items-center space-x-2">
+                  {/* New badge untuk chapter terbaru - Next.js style */}
+                  {chapter.releaseDate && (() => {
+                    const releaseDate = new Date(chapter.releaseDate);
+                    const now = new Date();
+                    const diffDays = Math.floor((now - releaseDate) / (1000 * 60 * 60 * 24));
                     
-                    {/* Status badges */}
-                    <div className="flex items-center gap-1.5">
-                      {isNewChapter() && (
+                    if (diffDays <= 7) {
+                      return (
                         <span className={cn(
-                          "px-2 py-0.5 text-[10px] font-semibold rounded-full",
-                          "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
-                          "shadow-[0_1px_4px_-1px_rgba(34,197,94,0.4)]",
-                          "animate-pulse-slow"
+                          "px-2 py-0.5 text-xs font-medium rounded-full",
+                          "border border-green-200 dark:border-green-800",
+                          "shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]",
+                          isReading 
+                            ? "bg-white/30 text-white border-white/40" 
+                            : "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                         )}>
                           NEW
                         </span>
-                      )}
-                      
-                      {isLocked() && (
-                        <span className={cn(
-                          "px-2 py-0.5 text-[10px] font-semibold rounded-full",
-                          "bg-gradient-to-r from-gray-600 to-gray-700 text-gray-100",
-                          "shadow-[0_1px_4px_-1px_rgba(75,85,99,0.3)]"
-                        )}>
-                          PREMIUM
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   
-                  {/* Preview text */}
-                  {chapter.preview && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
-                      {chapter.preview}
-                    </p>
-                  )}
+                  <ArrowRight className={cn(
+                    "h-4 w-4 transition-transform duration-300 flex-shrink-0",
+                    isReading ? "text-white/80" : "text-gray-400 dark:text-gray-500",
+                    isHovered && "translate-x-1"
+                  )} />
                 </div>
-                
-                {/* Action arrow */}
-                <ArrowRight className={cn(
-                  "h-5 w-5 transition-all duration-300 flex-shrink-0 mt-1",
-                  isReading ? "text-blue-500" : "text-gray-400 dark:text-gray-500",
-                  isHovered && "translate-x-1 text-blue-500 dark:text-blue-400",
-                  isLocked() && "text-gray-300 dark:text-gray-600"
-                )} />
               </div>
             </div>
             
             {/* Metadata section */}
             {chapter.releaseDate && (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className={cn(
-                    "p-1.5 rounded-lg",
-                    "bg-white/80 dark:bg-gray-800/80",
-                    "shadow-[0_1px_3px_0_rgba(0,0,0,0.05)]"
-                  )}>
-                    <Calendar className={cn(
-                      "h-3.5 w-3.5",
-                      isReading ? "text-blue-500" : "text-gray-500 dark:text-gray-400"
-                    )} />
-                  </div>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1.5">
+                  <Calendar className={cn(
+                    "h-3.5 w-3.5 flex-shrink-0",
+                    isReading ? "text-white/80" : "text-gray-500 dark:text-gray-400"
+                  )} />
                   <span className={cn(
-                    "text-sm font-medium",
-                    isReading ? "text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300"
+                    "text-xs",
+                    isReading ? "text-white/90" : "text-gray-600 dark:text-gray-400"
                   )}>
                     {formatDate(chapter.releaseDate)}
                   </span>
                 </div>
                 
-                {/* Time ago indicator */}
+                {/* Separator */}
+                <div className="h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+                
+                {/* Days ago indicator - Next.js pill style */}
                 {(() => {
                   const releaseDate = new Date(chapter.releaseDate);
                   const now = new Date();
@@ -251,11 +209,11 @@ export default function ChapterButton({ chapter, onClick, isReading }) {
                     
                     return (
                       <span className={cn(
-                        "px-3 py-1 text-xs font-medium rounded-full",
-                        "bg-gradient-to-r from-gray-100/80 to-gray-200/60 dark:from-gray-800/60 dark:to-gray-700/60",
-                        "border border-gray-200/50 dark:border-gray-700/50",
-                        "shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]",
-                        isReading && "from-blue-50/80 to-blue-100/60 dark:from-blue-900/40 dark:to-blue-800/40 border-blue-200/50"
+                        "px-2 py-0.5 text-xs font-medium rounded-full",
+                        "border",
+                        isReading 
+                          ? "bg-white/10 text-white/90 border-white/20" 
+                          : "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
                       )}>
                         {text}
                       </span>
@@ -265,54 +223,27 @@ export default function ChapterButton({ chapter, onClick, isReading }) {
                 })()}
               </div>
             )}
+            
+            {/* Preview text dengan line clamp - Next.js typography */}
+            {chapter.preview && (
+              <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                {chapter.preview}
+              </p>
+            )}
           </div>
         </div>
         
-        {/* Hover glow effect */}
-        <div className={cn(
-          "absolute inset-0 rounded-xl opacity-0 transition-opacity duration-500 pointer-events-none",
-          "bg-gradient-to-r from-transparent via-blue-500/5 to-transparent",
-          isHovered && "opacity-100"
-        )} />
-        
-        {/* Click ripple effect */}
+        {/* Click animation overlay - Next.js subtle effect */}
         {isClicked && (
           <div className={cn(
-            "absolute inset-0 rounded-xl animate-ripple opacity-20",
-            isReading ? "bg-blue-500" : "bg-blue-400"
+            "absolute inset-0 rounded-lg animate-ping opacity-10",
+            isReading ? "bg-white" : "bg-blue-500"
           )} />
         )}
       </Button>
       
-      {/* Subtle background glow */}
-      <div className="absolute -inset-3 -z-10 rounded-2xl bg-gradient-to-br from-transparent via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:via-blue-50/10 group-hover:to-blue-100/5 dark:group-hover:via-blue-900/5 dark:group-hover:to-blue-900/10" />
+      {/* Next.js style outer spacing */}
+      <div className="absolute -inset-2 -z-10 rounded-lg bg-gradient-to-br from-transparent via-transparent to-transparent transition-all duration-300 group-hover:from-gray-50/20 group-hover:via-gray-100/10 group-hover:to-gray-50/20 dark:group-hover:from-gray-800/20 dark:group-hover:via-gray-700/10 dark:group-hover:to-gray-800/20" />
     </div>
   );
 }
-
-// Tambahkan animasi ripple di CSS global atau di utils
-// @keyframes ripple {
-//   0% {
-//     transform: scale(0);
-//     opacity: 0.3;
-//   }
-//   100% {
-//     transform: scale(4);
-//     opacity: 0;
-//   }
-// }
-// .animate-ripple {
-//   animation: ripple 600ms linear;
-// }
-// 
-// @keyframes pulse-slow {
-//   0%, 100% {
-//     opacity: 1;
-//   }
-//   50% {
-//     opacity: 0.7;
-//   }
-// }
-// .animate-pulse-slow {
-//   animation: pulse-slow 2s ease-in-out infinite;
-// }
